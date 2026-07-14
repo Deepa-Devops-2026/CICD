@@ -23,26 +23,31 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
+            steps { 
+                dir('devops-e2e-app') {
                 sh 'mvn clean compile'
+                }
             }
         }
 
         stage('Test') {
             steps {
+                dir('devops-e2e-app'){
                 sh 'mvn test'
             }
         }
-
+        }
         stage('Package') {
             steps {
+                dir('devops-e2e-app') {
                 sh 'mvn clean package'
             }
+        } 
         }
 
         stage('Archive Artifact') {
             steps {
-                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+                archiveArtifacts artifacts: 'devops-e2e-app/target/*.war', fingerprint: true
             }
         }
 
