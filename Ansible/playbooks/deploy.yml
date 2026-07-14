@@ -1,0 +1,32 @@
+---
+- name: Configure Tomcat Server
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Java 21
+      apt:
+        name: openjdk-21-jdk
+        state: present
+
+    - name: Install Tomcat
+      apt:
+        name: tomcat9
+        state: present
+
+    - name: Enable Tomcat
+      systemd:
+        name: tomcat9
+        enabled: yes
+        state: started
+
+    - name: Configure JAVA_HOME
+      lineinfile:
+        path: /etc/default/tomcat9
+        line: 'JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64'
+        create: yes

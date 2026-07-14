@@ -1,0 +1,103 @@
+pipeline {
+
+    agent any
+
+    tools {
+        jdk 'JDK21'
+        maven 'Maven-3'
+    }
+
+    environment {
+        VM_IP = "20.219.125.69"
+        VM_USER = "azureuser"
+        APP_NAME = "devops-e2e-app"
+        TOMCAT_WEBAPPS = "/var/lib/tomcat9/webapps"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+            }
+        }
+
+        stage('Configure VM') {
+            steps {
+                dir('ansible') {
+                    sh '''
+                        ansible-playbook -i inventory.ini playbooks/deploy.yml
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy WAR') {
+            steps {
+                sh """
+                scp -i /home/deepa/.ssh/id_rsa \
+                    -o StrictHostKeyChecking=no \
+                    target/${APP_NAME} \
+                    ${VM_USER}@${VM_IP}:/tmp/
+
+                ssh -i /home/deepa/.ssh/id_rsa \
+                    -o StrictHostKeyChecking=no \
+                    ${VM_USER}@${VM_IP} "
+                    sudo cp /tmp/${APP_NAME} ${TOMCAT_WEBAPPS}/
+                    sudo systemctl restart tomcat9
+                "
+                """
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh """
+                    sleep 20
+                    curl http://${VM_IP}:8080/devops-e2e-app/
+                """
+            }
+        }
+
+    }
+
+    post {
+
+        always {
+            cleanWs()
+        }
+
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed.'
+        }
+
+    }
+}
