@@ -62,20 +62,20 @@ pipeline {
         }
 
         stage('Deploy WAR') {
-            steps {
-                sh """
-                scp -i /home/deepa/.ssh/id_rsa \
-                    -o StrictHostKeyChecking=no \
-                    devops-e2e-app/target/${APP_NAME}.war \
-                    ${VM_USER}@${VM_IP}:/tmp/
+    steps {
+        sh """
+              scp -i /var/lib/jenkins/.ssh/id_rsa \
+               -o StrictHostKeyChecking=no \
+               devops-e2e-app/target/${APP_NAME}.war \
+                ${VM_USER}@${VM_IP}:/tmp/
 
-                ssh -i /home/deepa/.ssh/id_rsa \
-                    -o StrictHostKeyChecking=no \
-                    ${VM_USER}@${VM_IP} "
-                    sudo cp /tmp/${APP_NAME} ${TOMCAT_WEBAPPS}/
-                    sudo systemctl restart tomcat9
-                "
-                """
+              ssh -i /var/lib/jenkins/.ssh/id_rsa \
+             -o StrictHostKeyChecking=no \
+             ${VM_USER}@${VM_IP} <<EOF
+            sudo cp /tmp/${APP_NAME}.war ${TOMCAT_WEBAPPS}/
+            sudo systemctl restart tomcat9
+ 
+        """
             }
         }
 
