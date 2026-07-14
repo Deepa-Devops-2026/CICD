@@ -1,0 +1,45 @@
+# Maven
+target/
+*.class
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+terraform.tfplan
+
+# Sensitive Variable Files (optional)
+*.auto.tfvars
+
+# Ansible
+*.retry
+
+# SSH Keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Environment Files
+.env
+
+# Jenkins
+.jenkins/
+
+# Temporary Files
+*.tmp
+*.swp
