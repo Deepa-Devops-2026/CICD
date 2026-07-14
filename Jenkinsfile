@@ -53,7 +53,7 @@ pipeline {
 
         stage('Configure VM') {
             steps {
-                dir('ansible') {
+                dir('Ansible') {
                     sh '''
                         ansible-playbook -i inventory.ini playbooks/deploy.yml
                     '''
@@ -66,7 +66,7 @@ pipeline {
                 sh """
                 scp -i /home/deepa/.ssh/id_rsa \
                     -o StrictHostKeyChecking=no \
-                    target/${APP_NAME} \
+                    devops-e2e-app/target/${APP_NAME}.war \
                     ${VM_USER}@${VM_IP}:/tmp/
 
                 ssh -i /home/deepa/.ssh/id_rsa \
